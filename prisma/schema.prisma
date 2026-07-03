@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum CashierStatus {
+  active
+  inactive
+}
+
+enum RegisterStatus {
+  active
+  inactive
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Cashier {
+  id         String        @id @default(cuid())
+  firstName  String
+  lastName   String
+  personalId String?
+  phone      String?
+  uniqueCode String        @unique
+  status     CashierStatus @default(active)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  attendanceRecords AttendanceRecord[]
+}
+
+model CashRegister {
+  id             String         @id @default(cuid())
+  name           String
+  registerNumber String
+  zone           String?
+  status         RegisterStatus @default(active)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  attendanceRecords AttendanceRecord[]
+}
+
+model AttendanceRecord {
+  id             String   @id @default(cuid())
+  cashierId      String
+  cashier        Cashier  @relation(fields: [cashierId], references: [id])
+  cashierName    String
+  cashierCode    String
+
+  cashRegisterId String
+  cashRegister   CashRegister @relation(fields: [cashRegisterId], references: [id])
+  cashRegisterName String
+
+  date        DateTime
+  checkInTime DateTime
+  latitude    Float
+  longitude   Float
+  accuracy    Float?
+  userAgent   String
+  status      String   @default("present")
+  createdAt   DateTime @default(now())
+
+  @@unique([cashierId, date])
+}
+
+model AppSettings {
+  id                  Int      @id @default(1)
+  companyName         String   @default("მთაწმინდის პარკი")
+  allowedLatitude     Float?
+  allowedLongitude    Float?
+  allowedRadiusMeters Float?
+  geofenceEnabled     Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
+}

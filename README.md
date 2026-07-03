@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# მთაწმინდის პარკი — დასწრების აღრიცხვის სისტემა
 
-## Getting Started
+მოლარეების დასწრების აღრიცხვის ვებ სისტემა, რომელიც ჩაანაცვლებს fingerprint მოწყობილობას: მოლარე შედის უნიკალური კოდით, აჭერს ვირტუალურ "თითის" ღილაკს, სისტემა იღებს მისი მობილურის GPS ლოკაციას და ირჩევს სალაროს — ასე ფიქსირდება დღიური დასწრება.
 
-First, run the development server:
+## ტექნოლოგიები
+
+- Next.js 16 (App Router) + React 19 + TypeScript
+- Tailwind CSS 4
+- Prisma ORM 6 + SQLite (`prisma/dev.db`)
+- jose (JWT ადმინის სესიისთვის), bcryptjs (პაროლის ჰეშირება)
+- xlsx (Excel გატანა)
+
+## გაშვება VS Code-ში
 
 ```bash
+npm install
+cp .env.example .env      # PowerShell-ზე: Copy-Item .env.example .env
+npm run db:migrate        # ქმნის SQLite ბაზას და ცხრილებს
+npm run db:seed           # ამატებს ადმინს, სატესტო სალაროებსა და მოლარეებს
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+გახსენით http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## საწყისი მონაცემები (seed)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **ადმინის შესვლა:** `/admin/login` — `admin` / `admin123`
+- **სატესტო მოლარის კოდები:** `MP-100001`, `MP-100002`, `MP-100003` — გამოსაყენებელია `/check-in` გვერდზე
+- სატესტო სალაროები: მთავარი შესასვლელი, ატრაქციონების ზონა, კაფე ბარი
 
-## Learn More
+`.env` ფაილში (`SEED_ADMIN_USERNAME`, `SEED_ADMIN_PASSWORD`) შეგიძლიათ შეცვალოთ საწყისი ადმინის მონაცემები ხელახალი სიდის გაშვებამდე.
 
-To learn more about Next.js, take a look at the following resources:
+## გვერდები
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/` — მთავარი გვერდი, აირჩიეთ როლი
+- `/check-in` — მოლარის დასწრების დაფიქსირება (კოდი → GPS → სალარო → დადასტურება)
+- `/admin/login` — ადმინის შესვლა
+- `/admin/dashboard` — დღევანდელი სტატისტიკა და სწრაფი მოქმედებები
+- `/admin/cashiers` — მოლარეების მართვა (დამატება/რედაქტირება/დეაქტივაცია/კოდის განახლება)
+- `/admin/registers` — სალაროების მართვა
+- `/admin/attendance` — დასწრების ჟურნალი, ფილტრები და Excel Export
+- `/admin/settings` — კომპანიის სახელი და Geofence (დაშვებული ლოკაცია/რადიუსი)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## სასარგებლო სკრიპტები
 
-## Deploy on Vercel
+```bash
+npm run db:studio   # Prisma Studio — ბაზის ვიზუალური დათვალიერება
+npm run build        # production build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+⚠️ `prisma/dev.db` არის ლოკალური SQLite ფაილი — production-ისთვის შეცვალეთ `DATABASE_URL` PostgreSQL-ის კავშირის სტრიქონით `prisma/schema.prisma`-ში (`provider = "postgresql"`) და გაუშვით მიგრაცია ხელახლა.
