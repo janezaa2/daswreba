@@ -3,15 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const links = [
-  { href: "/admin/dashboard", label: "დეშბორდი" },
-  { href: "/admin/cashiers", label: "მოლარეები" },
-  { href: "/admin/registers", label: "სალაროები" },
-  { href: "/admin/attendance", label: "დასწრების ჟურნალი" },
-  { href: "/admin/settings", label: "პარამეტრები" },
-];
+type NavLink = { href: string; label: string };
 
-export function AdminNav() {
+export function AdminNav({ links }: { links: NavLink[] }) {
   const pathname = usePathname();
 
   return (

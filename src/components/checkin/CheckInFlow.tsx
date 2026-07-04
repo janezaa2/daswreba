@@ -100,7 +100,9 @@ export function CheckInFlow() {
         setStep("register");
         setRegistersLoading(true);
         try {
-          const response = await fetch("/api/registers?activeOnly=true");
+          const response = await fetch(
+            `/api/registers?activeOnly=true&code=${encodeURIComponent(cashier?.uniqueCode ?? "")}`,
+          );
           const data = await response.json();
           setRegisters(data.registers || []);
         } catch {
@@ -156,7 +158,6 @@ export function CheckInFlow() {
     <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <p className="text-sm font-medium text-emerald-600">მთაწმინდის პარკი</p>
           <h1 className="mt-1 text-2xl font-bold text-slate-900">დასწრების დაფიქსირება</h1>
         </div>
 

@@ -15,7 +15,10 @@ export async function POST(request: NextRequest) {
   }
 
   const { username, password } = parsed.data;
-  const admin = await prisma.adminUser.findUnique({ where: { username } });
+  const admin = await prisma.adminUser.findUnique({
+    where: { username },
+    include: { company: true },
+  });
   if (!admin) {
     return NextResponse.json(
       { message: "მომხმარებლის სახელი ან პაროლი არასწორია" },
@@ -31,11 +34,31 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const token = await signAdminToken({ adminId: admin.id, username: admin.username });
+  if (admin.role === "company_user") {
+    if (!admin.company || admin.company.status === "pending") {
+      return NextResponse.json(
+        { message: "თქვენი კომპანიის რეგისტრაცია ჯერ არ არის დამტკიცებული ადმინისტრატორის მიერ" },
+        { status: 403 },
+      );
+    }
+    if (admin.company.status === "inactive") {
+      return NextResponse.json(
+        { message: "თქვენი კომპანია დეაქტივირებულია, მიმართეთ საიტის ადმინისტრატორს" },
+        { status: 403 },
+      );
+    }
+  }
+
+  const token = await signAdminToken({
+    adminId: admin.id,
+    username: admin.username,
+    role: admin.role,
+    companyId: admin.companyId,
+  });
 
   const response = NextResponse.json({
     message: "წარმატებით შეხვედით სისტემაში",
-    admin: { id: admin.id, username: admin.username },
+    admin: { id: admin.id, username: admin.username, role: admin.role },
   });
   response.cookies.set(ADMIN_COOKIE_NAME, token, {
     httpOnly: true,

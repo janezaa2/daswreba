@@ -2,7 +2,13 @@ import { getAdminSession } from "@/lib/auth";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { LogoutButton } from "@/components/admin/LogoutButton";
 
-export default async function AdminProtectedLayout({
+const PLATFORM_NAV_LINKS = [
+  { href: "/admin/dashboard", label: "დეშბორდი" },
+  { href: "/admin/companies", label: "კომპანიები" },
+  { href: "/admin/users", label: "მომხმარებლები" },
+];
+
+export default async function PlatformAdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -15,23 +21,21 @@ export default async function AdminProtectedLayout({
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-medium text-emerald-600 uppercase">
-              მთაწმინდის პარკი
+              საიტის ადმინისტრირება
             </p>
             <h1 className="text-lg font-bold text-slate-900">
-              ადმინისტრატორის პანელი
+              პლატფორმის ადმინისტრატორის პანელი
             </h1>
           </div>
           <div className="flex items-center gap-4">
             {session && (
-              <span className="text-sm text-slate-500">
-                {session.username}
-              </span>
+              <span className="text-sm text-slate-500">{session.username}</span>
             )}
             <LogoutButton />
           </div>
         </div>
         <div className="mx-auto max-w-6xl px-4 pb-3">
-          <AdminNav />
+          <AdminNav links={PLATFORM_NAV_LINKS} />
         </div>
       </header>
 

@@ -1,47 +1,31 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { todayAsUtcMidnight, toTbilisiDateString } from "@/lib/dates";
 
-export default async function AdminDashboardPage() {
-  const today = todayAsUtcMidnight();
-
-  const [activeCashiersCount, presentCashierIds, settings] = await Promise.all([
-    prisma.cashier.count({ where: { status: "active" } }),
-    prisma.attendanceRecord.findMany({
-      where: { date: today },
-      select: { cashierId: true },
-      distinct: ["cashierId"],
-    }),
-    prisma.appSettings.findUnique({ where: { id: 1 } }),
-  ]);
-
-  const presentCount = presentCashierIds.length;
-  const absentCount = Math.max(activeCashiersCount - presentCount, 0);
-  const companyName = settings?.companyName || "მთაწმინდის პარკი";
+export default async function PlatformAdminDashboardPage() {
+  const [totalCompanies, pendingCompanies, activeCompanies, inactiveCompanies, totalCashiers] =
+    await Promise.all([
+      prisma.company.count(),
+      prisma.company.count({ where: { status: "pending" } }),
+      prisma.company.count({ where: { status: "active" } }),
+      prisma.company.count({ where: { status: "inactive" } }),
+      prisma.cashier.count(),
+    ]);
 
   const stats = [
-    { label: "აქტიური მოლარეები", value: activeCashiersCount, color: "text-slate-900" },
-    { label: "დღეს გამოცხადდა", value: presentCount, color: "text-emerald-600" },
-    { label: "დღეს არ გამოცხადებულა", value: absentCount, color: "text-red-500" },
-  ];
-
-  const quickLinks = [
-    { href: "/admin/cashiers", label: "მოლარეების მართვა", description: "დამატება, რედაქტირება, კოდების მართვა" },
-    { href: "/admin/registers", label: "სალაროების მართვა", description: "სალაროების დამატება და სტატუსი" },
-    { href: "/admin/attendance", label: "დასწრების ჟურნალი", description: "დღიური დასწრების ნახვა და ფილტრაცია" },
-    { href: "/api/attendance/export", label: "Excel Export", description: "დღევანდელი დასწრების ჩამოტვირთვა", download: true },
+    { label: "სულ კომპანია", value: totalCompanies, color: "text-slate-900" },
+    { label: "დასამტკიცებელი", value: pendingCompanies, color: "text-amber-600" },
+    { label: "აქტიური", value: activeCompanies, color: "text-emerald-600" },
+    { label: "დეაქტივირებული", value: inactiveCompanies, color: "text-red-500" },
+    { label: "სულ მოლარე (ყველა კომპანია)", value: totalCashiers, color: "text-slate-900" },
   ];
 
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <p className="text-sm text-slate-500">{companyName}</p>
-        <h2 className="text-2xl font-bold text-slate-900">
-          დღევანდელი სტატისტიკა — {toTbilisiDateString(new Date())}
-        </h2>
+        <h2 className="text-2xl font-bold text-slate-900">საიტის მიმოხილვა</h2>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {stats.map((stat) => (
           <div
             key={stat.label}
@@ -53,34 +37,17 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-slate-500 uppercase">
-          სწრაფი მოქმედებები
-        </h3>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {quickLinks.map((link) =>
-            link.download ? (
-              <a
-                key={link.href}
-                href={link.href}
-                className="flex flex-col gap-1 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md"
-              >
-                <span className="font-semibold text-slate-900">{link.label}</span>
-                <span className="text-xs text-slate-500">{link.description}</span>
-              </a>
-            ) : (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex flex-col gap-1 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md"
-              >
-                <span className="font-semibold text-slate-900">{link.label}</span>
-                <span className="text-xs text-slate-500">{link.description}</span>
-              </Link>
-            ),
-          )}
-        </div>
-      </div>
+      {pendingCompanies > 0 && (
+        <Link
+          href="/admin/companies"
+          className="flex flex-col gap-1 rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm transition hover:border-amber-300"
+        >
+          <span className="font-semibold text-amber-800">
+            {pendingCompanies} კომპანია ელოდება დამტკიცებას
+          </span>
+          <span className="text-sm text-amber-700">გადადით კომპანიების გვერდზე განსახილველად</span>
+        </Link>
+      )}
     </div>
   );
 }

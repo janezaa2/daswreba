@@ -1,5 +1,5 @@
 import { RegisterManager } from "@/components/admin/RegisterManager";
 
-export default function AdminRegistersPage() {
+export default function CompanyRegistersPage() {
   return <RegisterManager />;
 }

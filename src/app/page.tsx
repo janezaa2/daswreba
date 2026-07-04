@@ -1,14 +1,16 @@
 import Link from "next/link";
+import { DownloadAppButton } from "@/components/DownloadAppButton";
 
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-16 text-center">
+      <DownloadAppButton />
       <div className="space-y-2">
         <p className="text-sm font-medium tracking-wide text-emerald-600 uppercase">
-          დასწრების აღრიცხვის სისტემა
+          მრავალი კომპანიისთვის
         </p>
         <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">
-          მთაწმინდის პარკი
+          დასწრების აღრიცხვის სისტემა
         </h1>
         <p className="max-w-md text-slate-500">
           აირჩიეთ თქვენი როლი სისტემაში შესასვლელად
@@ -27,13 +29,20 @@ export default function HomePage() {
         </Link>
 
         <Link
-          href="/admin/login"
+          href="/login"
           className="flex flex-col items-center gap-1 rounded-2xl border border-slate-200 bg-white px-6 py-6 text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 active:scale-[0.98]"
         >
-          <span className="text-lg font-semibold">ადმინისტრატორი</span>
+          <span className="text-lg font-semibold">შესვლა</span>
           <span className="text-sm text-slate-400">
-            მოლარეების, სალაროების და დასწრების მართვა
+            კომპანიის ან საიტის ადმინისტრატორის ანგარიშით
           </span>
+        </Link>
+
+        <Link
+          href="/register"
+          className="text-sm font-medium text-emerald-600 hover:underline"
+        >
+          ახალი კომპანიის რეგისტრაცია →
         </Link>
       </div>
     </main>

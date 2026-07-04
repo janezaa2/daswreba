@@ -1,21 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/apiHelpers";
+import { requireCompanyUser } from "@/lib/apiHelpers";
 import { cashierCreateSchema } from "@/lib/validation";
 import { generateUniqueCashierCode } from "@/lib/codeGenerator";
 
 export async function GET() {
-  const auth = await requireAdmin();
+  const auth = await requireCompanyUser();
   if ("error" in auth) return auth.error;
 
   const cashiers = await prisma.cashier.findMany({
+    where: { companyId: auth.companyId },
     orderBy: { createdAt: "desc" },
   });
   return NextResponse.json({ cashiers });
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAdmin();
+  const auth = await requireCompanyUser();
   if ("error" in auth) return auth.error;
 
   const body = await request.json().catch(() => null);
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
       personalId: parsed.data.personalId || null,
       phone: parsed.data.phone || null,
       uniqueCode,
+      companyId: auth.companyId,
     },
   });
 

@@ -30,3 +30,12 @@ export function toTbilisiTimeString(instant: Date): string {
     hour12: false,
   }).format(instant);
 }
+
+export function toTbilisiShortTimeString(instant: Date): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(instant);
+}

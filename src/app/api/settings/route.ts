@@ -1,24 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/apiHelpers";
+import { requireCompanyUser } from "@/lib/apiHelpers";
 import { settingsUpdateSchema } from "@/lib/validation";
 
-async function getOrCreateSettings() {
-  const settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
-  if (settings) return settings;
-  return prisma.appSettings.create({ data: { id: 1 } });
+function toSettingsShape(company: {
+  name: string;
+  allowedLatitude: number | null;
+  allowedLongitude: number | null;
+  allowedRadiusMeters: number | null;
+  geofenceEnabled: boolean;
+}) {
+  return {
+    companyName: company.name,
+    allowedLatitude: company.allowedLatitude,
+    allowedLongitude: company.allowedLongitude,
+    allowedRadiusMeters: company.allowedRadiusMeters,
+    geofenceEnabled: company.geofenceEnabled,
+  };
 }
 
 export async function GET() {
-  const auth = await requireAdmin();
+  const auth = await requireCompanyUser();
   if ("error" in auth) return auth.error;
 
-  const settings = await getOrCreateSettings();
-  return NextResponse.json({ settings });
+  const company = await prisma.company.findUniqueOrThrow({ where: { id: auth.companyId } });
+  return NextResponse.json({ settings: toSettingsShape(company) });
 }
 
 export async function PUT(request: NextRequest) {
-  const auth = await requireAdmin();
+  const auth = await requireCompanyUser();
   if ("error" in auth) return auth.error;
 
   const body = await request.json().catch(() => null);
@@ -30,11 +40,14 @@ export async function PUT(request: NextRequest) {
     );
   }
 
-  await getOrCreateSettings();
-  const settings = await prisma.appSettings.update({
-    where: { id: 1 },
-    data: parsed.data,
+  const { companyName, ...geofence } = parsed.data;
+  const company = await prisma.company.update({
+    where: { id: auth.companyId },
+    data: {
+      ...(companyName !== undefined && { name: companyName }),
+      ...geofence,
+    },
   });
 
-  return NextResponse.json({ settings });
+  return NextResponse.json({ settings: toSettingsShape(company) });
 }

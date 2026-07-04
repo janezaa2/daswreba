@@ -3,33 +3,48 @@ import { jwtVerify } from "jose";
 
 const ADMIN_COOKIE_NAME = "admin_session";
 
-async function isValidAdminToken(token: string | undefined): Promise<boolean> {
-  if (!token) return false;
+type Role = "platform_admin" | "company_user";
+
+async function getRole(token: string | undefined): Promise<Role | null> {
+  if (!token) return null;
   const secret = process.env.JWT_SECRET;
-  if (!secret) return false;
+  if (!secret) return null;
   try {
-    await jwtVerify(token, new TextEncoder().encode(secret));
-    return true;
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
+    if (payload.role === "platform_admin" || payload.role === "company_user") {
+      return payload.role;
+    }
+    return null;
   } catch {
-    return false;
+    return null;
   }
 }
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
-  const authenticated = await isValidAdminToken(token);
+  const role = await getRole(token);
 
-  if (pathname === "/admin/login") {
-    if (authenticated) {
+  if (pathname.startsWith("/login")) {
+    if (role === "platform_admin") {
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    }
+    if (role === "company_user") {
+      return NextResponse.redirect(new URL("/company/dashboard", request.url));
     }
     return NextResponse.next();
   }
 
   if (pathname.startsWith("/admin")) {
-    if (!authenticated) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+    if (role !== "platform_admin") {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/company")) {
+    if (role !== "company_user") {
+      return NextResponse.redirect(new URL("/login", request.url));
     }
     return NextResponse.next();
   }
@@ -38,5 +53,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/company/:path*", "/login"],
 };

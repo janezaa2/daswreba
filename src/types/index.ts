@@ -40,12 +40,10 @@ export type AttendanceRecord = {
   createdAt: string;
 };
 
-export type AppSettings = {
-  id: number;
+export type CompanySettings = {
   companyName: string;
   allowedLatitude: number | null;
   allowedLongitude: number | null;
   allowedRadiusMeters: number | null;
   geofenceEnabled: boolean;
-  updatedAt: string;
 };

@@ -12,7 +12,7 @@ export function LogoutButton() {
     setLoading(true);
     try {
       await fetch("/api/admin/logout", { method: "POST" });
-      router.push("/admin/login");
+      router.push("/login");
       router.refresh();
     } finally {
       setLoading(false);

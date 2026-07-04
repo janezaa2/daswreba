@@ -3,10 +3,10 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
-import type { AppSettings } from "@/types";
+import type { CompanySettings } from "@/types";
 
 export function SettingsManager() {
-  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [settings, setSettings] = useState<CompanySettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,7 @@ export function SettingsManager() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((data) => {
-        const s: AppSettings = data.settings;
+        const s: CompanySettings = data.settings;
         setSettings(s);
         setCompanyName(s.companyName);
         setGeofenceEnabled(s.geofenceEnabled);

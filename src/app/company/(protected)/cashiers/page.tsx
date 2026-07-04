@@ -1,5 +1,5 @@
 import { CashierManager } from "@/components/admin/CashierManager";
 
-export default function AdminCashiersPage() {
+export default function CompanyCashiersPage() {
   return <CashierManager />;
 }

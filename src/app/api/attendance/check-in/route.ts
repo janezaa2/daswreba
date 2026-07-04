@@ -29,7 +29,11 @@ export async function POST(request: NextRequest) {
   }
 
   const cashRegister = await prisma.cashRegister.findUnique({ where: { id: cashRegisterId } });
-  if (!cashRegister || cashRegister.status !== "active") {
+  if (
+    !cashRegister ||
+    cashRegister.status !== "active" ||
+    cashRegister.companyId !== cashier.companyId
+  ) {
     return NextResponse.json({ message: "სალარო ვერ მოიძებნა ან არააქტიურია" }, { status: 404 });
   }
 
@@ -44,22 +48,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
+  const company = await prisma.company.findUnique({ where: { id: cashier.companyId } });
   let geofenceWarning: string | null = null;
   if (
-    settings?.geofenceEnabled &&
-    settings.allowedLatitude != null &&
-    settings.allowedLongitude != null &&
-    settings.allowedRadiusMeters != null
+    company?.geofenceEnabled &&
+    company.allowedLatitude != null &&
+    company.allowedLongitude != null &&
+    company.allowedRadiusMeters != null
   ) {
     const distance = haversineDistanceMeters(
       latitude,
       longitude,
-      settings.allowedLatitude,
-      settings.allowedLongitude,
+      company.allowedLatitude,
+      company.allowedLongitude,
     );
-    if (distance > settings.allowedRadiusMeters) {
-      geofenceWarning = `თქვენი ლოკაცია დაშორებულია პარკის ტერიტორიიდან დაახლოებით ${Math.round(distance)} მეტრით`;
+    if (distance > company.allowedRadiusMeters) {
+      geofenceWarning = `თქვენი ლოკაცია დაშორებულია დაშვებული ტერიტორიიდან დაახლოებით ${Math.round(distance)} მეტრით`;
     }
   }
 
@@ -71,6 +75,7 @@ export async function POST(request: NextRequest) {
         cashierCode: cashier.uniqueCode,
         cashRegisterId: cashRegister.id,
         cashRegisterName: cashRegister.name,
+        companyId: cashier.companyId,
         date,
         checkInTime: new Date(),
         latitude,

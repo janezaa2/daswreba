@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -17,12 +17,47 @@ enum RegisterStatus {
   inactive
 }
 
+enum CompanyStatus {
+  pending
+  active
+  inactive
+}
+
+enum AdminRole {
+  platform_admin
+  company_user
+}
+
+model Company {
+  id     String        @id @default(cuid())
+  name   String
+  status CompanyStatus @default(pending)
+
+  allowedLatitude     Float?
+  allowedLongitude    Float?
+  allowedRadiusMeters Float?
+  geofenceEnabled     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  adminUsers        AdminUser[]
+  cashiers          Cashier[]
+  cashRegisters     CashRegister[]
+  attendanceRecords AttendanceRecord[]
+}
+
 model AdminUser {
-  id           String   @id @default(cuid())
-  username     String   @unique
+  id           String    @id @default(cuid())
+  username     String    @unique
   passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role         AdminRole @default(company_user)
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Cashier {
@@ -36,6 +71,9 @@ model Cashier {
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
 
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
   attendanceRecords AttendanceRecord[]
 }
 
@@ -47,6 +85,9 @@ model CashRegister {
   status         RegisterStatus @default(active)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
 
   attendanceRecords AttendanceRecord[]
 }
@@ -62,24 +103,18 @@ model AttendanceRecord {
   cashRegister   CashRegister @relation(fields: [cashRegisterId], references: [id])
   cashRegisterName String
 
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
   date        DateTime
   checkInTime DateTime
   latitude    Float
   longitude   Float
   accuracy    Float?
   userAgent   String
+  platform    String   @default("web")
   status      String   @default("present")
   createdAt   DateTime @default(now())
 
   @@unique([cashierId, date])
-}
-
-model AppSettings {
-  id                  Int      @id @default(1)
-  companyName         String   @default("მთაწმინდის პარკი")
-  allowedLatitude     Float?
-  allowedLongitude    Float?
-  allowedRadiusMeters Float?
-  geofenceEnabled     Boolean  @default(false)
-  updatedAt           DateTime @updatedAt
 }

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "მთაწმინდის პარკი — დასწრების სისტემა",
-  description: "მოლარეების დასწრების აღრიცხვის სისტემა",
+  title: "დასწრების აღრიცხვის სისტემა",
+  description: "მოლარეების დასწრების აღრიცხვის მრავალკომპანიური სისტემა",
 };
 
 export default function RootLayout({

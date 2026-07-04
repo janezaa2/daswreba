@@ -12,9 +12,13 @@ function getSecretKey() {
   return new TextEncoder().encode(secret);
 }
 
+export type AdminRole = "platform_admin" | "company_user";
+
 export type AdminSessionPayload = {
   adminId: string;
   username: string;
+  role: AdminRole;
+  companyId: string | null;
 };
 
 export async function signAdminToken(payload: AdminSessionPayload) {
@@ -30,10 +34,19 @@ export async function verifyAdminToken(
 ): Promise<AdminSessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSecretKey());
-    if (typeof payload.adminId !== "string" || typeof payload.username !== "string") {
+    if (
+      typeof payload.adminId !== "string" ||
+      typeof payload.username !== "string" ||
+      (payload.role !== "platform_admin" && payload.role !== "company_user")
+    ) {
       return null;
     }
-    return { adminId: payload.adminId, username: payload.username };
+    return {
+      adminId: payload.adminId,
+      username: payload.username,
+      role: payload.role,
+      companyId: typeof payload.companyId === "string" ? payload.companyId : null,
+    };
   } catch {
     return null;
   }

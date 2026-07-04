@@ -54,10 +54,45 @@ export const settingsUpdateSchema = z.object({
   geofenceEnabled: z.boolean().optional(),
 });
 
+export const companyRegisterSchema = z.object({
+  companyName: z.string().trim().min(1, "კომპანიის სახელი აუცილებელია"),
+  username: z
+    .string()
+    .trim()
+    .min(3, "მომხმარებლის სახელი უნდა შეიცავდეს მინიმუმ 3 სიმბოლოს"),
+  password: z.string().min(6, "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს"),
+});
+
+export const companyStatusUpdateSchema = z.object({
+  status: z.enum(["pending", "active", "inactive"]),
+});
+
+export const adminUserUpdateSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(3, "მომხმარებლის სახელი უნდა შეიცავდეს მინიმუმ 3 სიმბოლოს")
+    .optional(),
+  password: z.string().min(6, "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს").optional(),
+});
+
 export const attendanceFilterSchema = z.object({
   dateFrom: z.string().optional(),
   dateTo: z.string().optional(),
   cashierId: z.string().optional(),
   cashRegisterId: z.string().optional(),
   status: z.string().optional(),
+});
+
+export const mobileVerifyCodeSchema = z.object({
+  uniqueCode: z.string().trim().min(1, "კოდი აუცილებელია"),
+});
+
+export const mobileCheckInSchema = z.object({
+  cashRegisterId: z.string().trim().min(1, "სალაროს არჩევა აუცილებელია"),
+  latitude: z.number(),
+  longitude: z.number(),
+  accuracy: z.number().optional().nullable(),
+  deviceInfo: z.string().optional().default(""),
+  platform: z.string().optional().default("android"),
 });
