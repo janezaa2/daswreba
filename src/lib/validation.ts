@@ -114,3 +114,18 @@ export const mobileCheckInSchema = z.object({
   platform: z.string().optional().default("android"),
   deviceId: z.string().trim().min(1, "მოწყობილობის იდენტიფიკატორი აუცილებელია"),
 });
+
+export const siteContentPageSchema = z.enum(["about", "contact"]);
+
+export const siteContentBlockCreateSchema = z.object({
+  page: siteContentPageSchema,
+  title: z.string().trim().min(1, "სათაური აუცილებელია"),
+  body: z.string().trim().min(1, "ტექსტი აუცილებელია"),
+  order: z.number().int().optional().default(0),
+});
+
+export const siteContentBlockUpdateSchema = z.object({
+  title: z.string().trim().min(1).optional(),
+  body: z.string().trim().min(1).optional(),
+  order: z.number().int().optional(),
+});

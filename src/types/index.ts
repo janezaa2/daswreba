@@ -57,3 +57,15 @@ export type CompanyLocation = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type SiteContentPageKey = "about" | "contact";
+
+export type SiteContentBlock = {
+  id: string;
+  page: SiteContentPageKey;
+  title: string;
+  body: string;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+};

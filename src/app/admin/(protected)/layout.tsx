@@ -6,6 +6,7 @@ const PLATFORM_NAV_LINKS = [
   { href: "/admin/dashboard", label: "დეშბორდი" },
   { href: "/admin/companies", label: "კომპანიები" },
   { href: "/admin/users", label: "მომხმარებლები" },
+  { href: "/admin/content", label: "საიტის კონტენტი" },
 ];
 
 export default async function PlatformAdminLayout({

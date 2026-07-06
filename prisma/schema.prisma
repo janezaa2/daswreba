@@ -28,6 +28,24 @@ enum AdminRole {
   company_user
 }
 
+enum SiteContentPage {
+  about
+  contact
+}
+
+model SiteContentBlock {
+  id    String          @id @default(cuid())
+  page  SiteContentPage
+  title String
+  body  String
+  order Int             @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([page, order])
+}
+
 model Company {
   id                 String        @id @default(cuid())
   name               String

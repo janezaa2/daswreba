@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
+import { SiteTopBar } from "@/components/SiteTopBar";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-12">
+      <SiteTopBar />
       <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-6 text-center">
           <h1 className="mt-1 text-2xl font-bold text-slate-900">შესვლა</h1>

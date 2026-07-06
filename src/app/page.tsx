@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { DownloadAppButton } from "@/components/DownloadAppButton";
+import { SiteTopBar } from "@/components/SiteTopBar";
 
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-16 text-center">
-      <DownloadAppButton />
+      <SiteTopBar />
       <div className="space-y-2">
         <p className="text-sm font-medium tracking-wide text-emerald-600 uppercase">
           მრავალი კომპანიისთვის
@@ -43,6 +43,16 @@ export default function HomePage() {
           className="text-sm font-medium text-emerald-600 hover:underline"
         >
           ახალი კომპანიის რეგისტრაცია →
+        </Link>
+      </div>
+
+      <div className="flex gap-4 text-sm text-slate-400">
+        <Link href="/about" className="hover:text-slate-600 hover:underline">
+          ჩვენს შესახებ
+        </Link>
+        <span>·</span>
+        <Link href="/contact" className="hover:text-slate-600 hover:underline">
+          კონტაქტი
         </Link>
       </div>
     </main>

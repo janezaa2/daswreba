@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
 import { LocationPickerCard, type LocationDraft } from "@/components/LocationPickerCard";
+import { SiteTopBar } from "@/components/SiteTopBar";
 
 const EMPTY_DRAFT: LocationDraft = { name: "", latitude: null, longitude: null, radiusMeters: "200" };
 
@@ -80,6 +81,7 @@ export default function RegisterPage() {
 
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-12">
+      <SiteTopBar />
       <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-6 text-center">
           <h1 className="mt-1 text-2xl font-bold text-slate-900">კომპანიის რეგისტრაცია</h1>
