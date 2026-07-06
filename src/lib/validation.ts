@@ -49,24 +49,35 @@ export const checkInSchema = z.object({
 
 export const settingsUpdateSchema = z.object({
   companyName: z.string().trim().min(1).optional(),
-  allowedLatitude: z.number().nullable().optional(),
-  allowedLongitude: z.number().nullable().optional(),
-  allowedRadiusMeters: z.number().positive().nullable().optional(),
   geofenceEnabled: z.boolean().optional(),
 });
 
+export const companyLocationSchema = z.object({
+  name: z.string().trim().min(1, "ლოკაციის სახელი აუცილებელია"),
+  latitude: z.number(),
+  longitude: z.number(),
+  radiusMeters: z.number().positive("რადიუსი უნდა იყოს დადებითი რიცხვი"),
+});
+
+export const companyLocationUpdateSchema = z.object({
+  name: z.string().trim().min(1).optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  radiusMeters: z.number().positive().optional(),
+});
+
+export const identificationCodeSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{9}$/, "საიდენტიფიკაციო კოდი უნდა შედგებოდეს ზუსტად 9 ციფრისგან");
+
 export const companyRegisterSchema = z.object({
   companyName: z.string().trim().min(1, "კომპანიის სახელი აუცილებელია"),
-  username: z
-    .string()
-    .trim()
-    .min(3, "მომხმარებლის სახელი უნდა შეიცავდეს მინიმუმ 3 სიმბოლოს"),
+  identificationCode: identificationCodeSchema,
   password: z.string().min(6, "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს"),
-  allowedLatitude: z.number({ message: "ლოკაციის მითითება აუცილებელია" }),
-  allowedLongitude: z.number({ message: "ლოკაციის მითითება აუცილებელია" }),
-  allowedRadiusMeters: z
-    .number({ message: "დაშვებული რადიუსის მითითება აუცილებელია" })
-    .positive("რადიუსი უნდა იყოს დადებითი რიცხვი"),
+  locations: z
+    .array(companyLocationSchema)
+    .min(1, "მინიმუმ ერთი ლოკაციის მითითება აუცილებელია"),
 });
 
 export const companyStatusUpdateSchema = z.object({

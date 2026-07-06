@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkInSchema } from "@/lib/validation";
 import { todayAsUtcMidnight } from "@/lib/dates";
-import { haversineDistanceMeters } from "@/lib/geofence";
+import { distanceToNearestLocation, isWithinAnyLocation } from "@/lib/geofence";
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -61,24 +61,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const company = await prisma.company.findUnique({ where: { id: cashier.companyId } });
+  const company = await prisma.company.findUnique({
+    where: { id: cashier.companyId },
+    include: { locations: true },
+  });
   let geofenceWarning: string | null = null;
   let outOfRange = false;
-  if (
-    company?.geofenceEnabled &&
-    company.allowedLatitude != null &&
-    company.allowedLongitude != null &&
-    company.allowedRadiusMeters != null
-  ) {
-    const distance = haversineDistanceMeters(
-      latitude,
-      longitude,
-      company.allowedLatitude,
-      company.allowedLongitude,
-    );
-    if (distance > company.allowedRadiusMeters) {
-      outOfRange = true;
-      geofenceWarning = `თქვენი ლოკაცია დაშორებულია დაშვებული ტერიტორიიდან დაახლოებით ${Math.round(distance)} მეტრით`;
+  if (company?.geofenceEnabled && company.locations.length > 0) {
+    outOfRange = !isWithinAnyLocation(latitude, longitude, company.locations);
+    if (outOfRange) {
+      const distance = distanceToNearestLocation(latitude, longitude, company.locations);
+      geofenceWarning = `თქვენი ლოკაცია დაშორებულია უახლოესი დაშვებული ტერიტორიიდან დაახლოებით ${Math.round(distance ?? 0)} მეტრით`;
     }
   }
 

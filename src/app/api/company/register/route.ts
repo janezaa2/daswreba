@@ -13,13 +13,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { companyName, username, password, allowedLatitude, allowedLongitude, allowedRadiusMeters } =
-    parsed.data;
+  const { companyName, identificationCode, password, locations } = parsed.data;
 
-  const existingUser = await prisma.adminUser.findUnique({ where: { username } });
+  const existingUser = await prisma.adminUser.findUnique({
+    where: { username: identificationCode },
+  });
   if (existingUser) {
     return NextResponse.json(
-      { message: "მომხმარებლის სახელი დაკავებულია" },
+      { message: "ამ საიდენტიფიკაციო კოდით კომპანია უკვე რეგისტრირებულია" },
       { status: 409 },
     );
   }
@@ -29,14 +30,15 @@ export async function POST(request: NextRequest) {
   const company = await prisma.company.create({
     data: {
       name: companyName,
+      identificationCode,
       status: "pending",
-      allowedLatitude,
-      allowedLongitude,
-      allowedRadiusMeters,
       geofenceEnabled: true,
+      locations: {
+        create: locations,
+      },
       adminUsers: {
         create: {
-          username,
+          username: identificationCode,
           passwordHash,
           role: "company_user",
         },

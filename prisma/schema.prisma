@@ -29,14 +29,12 @@ enum AdminRole {
 }
 
 model Company {
-  id     String        @id @default(cuid())
-  name   String
-  status CompanyStatus @default(pending)
+  id                 String        @id @default(cuid())
+  name               String
+  identificationCode String?       @unique
+  status             CompanyStatus @default(pending)
 
-  allowedLatitude     Float?
-  allowedLongitude    Float?
-  allowedRadiusMeters Float?
-  geofenceEnabled     Boolean @default(false)
+  geofenceEnabled Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -45,6 +43,21 @@ model Company {
   cashiers          Cashier[]
   cashRegisters     CashRegister[]
   attendanceRecords AttendanceRecord[]
+  locations         CompanyLocation[]
+}
+
+model CompanyLocation {
+  id           String @id @default(cuid())
+  name         String
+  latitude     Float
+  longitude    Float
+  radiusMeters Float
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AdminUser {

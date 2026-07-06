@@ -24,3 +24,36 @@ export function haversineDistanceMeters(
 export function buildGoogleMapsLink(latitude: number, longitude: number) {
   return `https://www.google.com/maps?q=${latitude},${longitude}`;
 }
+
+type GeofenceLocation = {
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+};
+
+// A check-in is within range if it falls inside ANY of the company's locations.
+export function isWithinAnyLocation(
+  latitude: number,
+  longitude: number,
+  locations: GeofenceLocation[],
+): boolean {
+  if (locations.length === 0) return true;
+  return locations.some(
+    (location) =>
+      haversineDistanceMeters(latitude, longitude, location.latitude, location.longitude) <=
+      location.radiusMeters,
+  );
+}
+
+export function distanceToNearestLocation(
+  latitude: number,
+  longitude: number,
+  locations: GeofenceLocation[],
+): number | null {
+  if (locations.length === 0) return null;
+  return Math.min(
+    ...locations.map((location) =>
+      haversineDistanceMeters(latitude, longitude, location.latitude, location.longitude),
+    ),
+  );
+}

@@ -43,8 +43,17 @@ export type AttendanceRecord = {
 
 export type CompanySettings = {
   companyName: string;
-  allowedLatitude: number | null;
-  allowedLongitude: number | null;
-  allowedRadiusMeters: number | null;
+  identificationCode: string | null;
   geofenceEnabled: boolean;
+};
+
+export type CompanyLocation = {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+  companyId: string;
+  createdAt: string;
+  updatedAt: string;
 };

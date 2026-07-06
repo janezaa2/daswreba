@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireMobileCashier } from "@/lib/mobileApiHelpers";
 import { mobileCheckInSchema } from "@/lib/validation";
 import { todayAsUtcMidnight, toTbilisiDateString, toTbilisiShortTimeString } from "@/lib/dates";
-import { haversineDistanceMeters } from "@/lib/geofence";
+import { isWithinAnyLocation } from "@/lib/geofence";
 
 export async function POST(request: NextRequest) {
   const auth = await requireMobileCashier(request);
@@ -63,22 +63,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const company = await prisma.company.findUnique({ where: { id: cashier.companyId } });
-  let outOfRange = false;
-  if (
-    company?.geofenceEnabled &&
-    company.allowedLatitude != null &&
-    company.allowedLongitude != null &&
-    company.allowedRadiusMeters != null
-  ) {
-    const distance = haversineDistanceMeters(
-      latitude,
-      longitude,
-      company.allowedLatitude,
-      company.allowedLongitude,
-    );
-    outOfRange = distance > company.allowedRadiusMeters;
-  }
+  const company = await prisma.company.findUnique({
+    where: { id: cashier.companyId },
+    include: { locations: true },
+  });
+  const outOfRange =
+    Boolean(company?.geofenceEnabled) && company!.locations.length > 0
+      ? !isWithinAnyLocation(latitude, longitude, company!.locations)
+      : false;
 
   try {
     const record = await prisma.attendanceRecord.create({

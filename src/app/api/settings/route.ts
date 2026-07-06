@@ -3,18 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { requireCompanyUser } from "@/lib/apiHelpers";
 import { settingsUpdateSchema } from "@/lib/validation";
 
-function toSettingsShape(company: {
-  name: string;
-  allowedLatitude: number | null;
-  allowedLongitude: number | null;
-  allowedRadiusMeters: number | null;
-  geofenceEnabled: boolean;
-}) {
+function toSettingsShape(company: { name: string; identificationCode: string | null; geofenceEnabled: boolean }) {
   return {
     companyName: company.name,
-    allowedLatitude: company.allowedLatitude,
-    allowedLongitude: company.allowedLongitude,
-    allowedRadiusMeters: company.allowedRadiusMeters,
+    identificationCode: company.identificationCode,
     geofenceEnabled: company.geofenceEnabled,
   };
 }
