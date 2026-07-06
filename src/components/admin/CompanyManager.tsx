@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { CompanyFormModal } from "@/components/admin/CompanyFormModal";
 
 type CompanyRow = {
   id: string;
   name: string;
+  identificationCode: string | null;
   status: "pending" | "active" | "inactive";
   createdAt: string;
   adminUsers: { id: string; username: string }[];
@@ -29,6 +31,7 @@ export function CompanyManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [editingCompany, setEditingCompany] = useState<CompanyRow | null>(null);
 
   async function loadCompanies() {
     setLoading(true);
@@ -66,6 +69,27 @@ export function CompanyManager() {
     }
   }
 
+  async function handleDelete(company: CompanyRow) {
+    const confirmed = confirm(
+      `ნამდვილად გსურთ "${company.name}"-ის სამუდამოდ წაშლა?\n\nეს წაშლის ${company._count.cashiers} მოლარეს, ${company._count.cashRegisters} სალაროს და მთელ დასწრების ისტორიას. ამ მოქმედების დაბრუნება შეუძლებელია.`,
+    );
+    if (!confirmed) return;
+
+    setBusyId(company.id);
+    setError(null);
+    try {
+      const response = await fetch(`/api/companies/${company.id}`, { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.message || "წაშლა ვერ მოხერხდა");
+        return;
+      }
+      await loadCompanies();
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <h2 className="text-2xl font-bold text-slate-900">კომპანიების მართვა</h2>
@@ -75,7 +99,7 @@ export function CompanyManager() {
       )}
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full min-w-[820px] text-left text-sm">
+        <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
             <tr>
               <th className="px-4 py-3 font-medium">კომპანია</th>
@@ -104,7 +128,14 @@ export function CompanyManager() {
             {!loading &&
               companies.map((company) => (
                 <tr key={company.id}>
-                  <td className="px-4 py-3 font-medium text-slate-900">{company.name}</td>
+                  <td className="px-4 py-3 font-medium text-slate-900">
+                    {company.name}
+                    {company.identificationCode && (
+                      <span className="ml-2 font-mono text-xs text-slate-400">
+                        {company.identificationCode}
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-slate-500">
                     {company.adminUsers.map((u) => u.username).join(", ") || "—"}
                   </td>
@@ -157,6 +188,21 @@ export function CompanyManager() {
                           აქტივაცია
                         </Button>
                       )}
+                      <Button
+                        variant="ghost"
+                        className="px-2 py-1"
+                        onClick={() => setEditingCompany(company)}
+                      >
+                        რედაქტირება
+                      </Button>
+                      <Button
+                        variant="danger"
+                        className="px-2 py-1"
+                        loading={busyId === company.id}
+                        onClick={() => handleDelete(company)}
+                      >
+                        წაშლა
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -164,6 +210,17 @@ export function CompanyManager() {
           </tbody>
         </table>
       </div>
+
+      {editingCompany && (
+        <CompanyFormModal
+          company={editingCompany}
+          onClose={() => setEditingCompany(null)}
+          onSaved={() => {
+            setEditingCompany(null);
+            loadCompanies();
+          }}
+        />
+      )}
     </div>
   );
 }

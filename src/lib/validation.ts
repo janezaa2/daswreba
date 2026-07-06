@@ -84,6 +84,17 @@ export const companyStatusUpdateSchema = z.object({
   status: z.enum(["pending", "active", "inactive"]),
 });
 
+export const companyUpdateSchema = z.object({
+  name: z.string().trim().min(1, "კომპანიის სახელი აუცილებელია").optional(),
+  identificationCode: identificationCodeSchema.optional(),
+  status: z.enum(["pending", "active", "inactive"]).optional(),
+  username: z
+    .string()
+    .trim()
+    .min(3, "მომხმარებლის სახელი უნდა შეიცავდეს მინიმუმ 3 სიმბოლოს")
+    .optional(),
+});
+
 export const adminUserUpdateSchema = z.object({
   username: z
     .string()
