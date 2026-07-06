@@ -44,6 +44,7 @@ export const checkInSchema = z.object({
   longitude: z.number(),
   accuracy: z.number().optional().nullable(),
   userAgent: z.string().optional().default(""),
+  deviceId: z.string().trim().min(1, "მოწყობილობის იდენტიფიკატორი აუცილებელია"),
 });
 
 export const settingsUpdateSchema = z.object({
@@ -61,6 +62,11 @@ export const companyRegisterSchema = z.object({
     .trim()
     .min(3, "მომხმარებლის სახელი უნდა შეიცავდეს მინიმუმ 3 სიმბოლოს"),
   password: z.string().min(6, "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს"),
+  allowedLatitude: z.number({ message: "ლოკაციის მითითება აუცილებელია" }),
+  allowedLongitude: z.number({ message: "ლოკაციის მითითება აუცილებელია" }),
+  allowedRadiusMeters: z
+    .number({ message: "დაშვებული რადიუსის მითითება აუცილებელია" })
+    .positive("რადიუსი უნდა იყოს დადებითი რიცხვი"),
 });
 
 export const companyStatusUpdateSchema = z.object({
@@ -95,4 +101,5 @@ export const mobileCheckInSchema = z.object({
   accuracy: z.number().optional().nullable(),
   deviceInfo: z.string().optional().default(""),
   platform: z.string().optional().default("android"),
+  deviceId: z.string().trim().min(1, "მოწყობილობის იდენტიფიკატორი აუცილებელია"),
 });

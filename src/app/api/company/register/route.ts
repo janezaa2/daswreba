@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { companyName, username, password } = parsed.data;
+  const { companyName, username, password, allowedLatitude, allowedLongitude, allowedRadiusMeters } =
+    parsed.data;
 
   const existingUser = await prisma.adminUser.findUnique({ where: { username } });
   if (existingUser) {
@@ -29,6 +30,10 @@ export async function POST(request: NextRequest) {
     data: {
       name: companyName,
       status: "pending",
+      allowedLatitude,
+      allowedLongitude,
+      allowedRadiusMeters,
+      geofenceEnabled: true,
       adminUsers: {
         create: {
           username,

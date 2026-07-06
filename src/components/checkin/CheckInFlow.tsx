@@ -20,6 +20,17 @@ type Location = {
   accuracy: number | null;
 };
 
+const DEVICE_ID_STORAGE_KEY = "checkin_device_id";
+
+function getOrCreateDeviceId(): string {
+  let deviceId = localStorage.getItem(DEVICE_ID_STORAGE_KEY);
+  if (!deviceId) {
+    deviceId = crypto.randomUUID();
+    localStorage.setItem(DEVICE_ID_STORAGE_KEY, deviceId);
+  }
+  return deviceId;
+}
+
 export function CheckInFlow() {
   const [step, setStep] = useState<Step>("code");
 
@@ -138,6 +149,7 @@ export function CheckInFlow() {
           longitude: location.longitude,
           accuracy: location.accuracy,
           userAgent: navigator.userAgent,
+          deviceId: getOrCreateDeviceId(),
         }),
       });
       const data = await response.json();

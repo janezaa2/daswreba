@@ -31,7 +31,7 @@ export function DownloadAppButton() {
     <>
       <button
         onClick={handleOpen}
-        className="fixed top-4 left-4 z-40 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-700"
+        className="fixed top-4 left-4 z-40 flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-emerald-600/30 transition hover:bg-emerald-700"
       >
         <span aria-hidden>⬇</span>
         გადმოწერა

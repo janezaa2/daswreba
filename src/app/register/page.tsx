@@ -9,20 +9,61 @@ export default function RegisterPage() {
   const [companyName, setCompanyName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [radiusMeters, setRadiusMeters] = useState("200");
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const hasLocation = latitude !== "" && longitude !== "";
+
+  function useCurrentLocation() {
+    setLocationError(null);
+    if (!navigator.geolocation) {
+      setLocationError("ეს ბრაუზერი არ უჭერს მხარს გეოლოკაციას");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(position.coords.latitude.toFixed(6));
+        setLongitude(position.coords.longitude.toFixed(6));
+        setLocating(false);
+      },
+      () => {
+        setLocationError("ლოკაციის მიღება ვერ მოხერხდა, გთხოვთ დაუშვათ წვდომა და სცადოთ ხელახლა");
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    );
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
     setSuccess(null);
+
+    if (!hasLocation) {
+      setError("კომპანიის ლოკაციის მითითება სავალდებულოა");
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch("/api/company/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyName, username, password }),
+        body: JSON.stringify({
+          companyName,
+          username,
+          password,
+          allowedLatitude: Number(latitude),
+          allowedLongitude: Number(longitude),
+          allowedRadiusMeters: Number(radiusMeters),
+        }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -33,6 +74,8 @@ export default function RegisterPage() {
       setCompanyName("");
       setUsername("");
       setPassword("");
+      setLatitude("");
+      setLongitude("");
     } catch {
       setError("სერვერთან კავშირი ვერ მოხერხდა");
     } finally {
@@ -76,6 +119,42 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+
+            <div className="flex flex-col gap-2 rounded-lg border border-slate-200 p-3">
+              <p className="text-sm font-medium text-slate-700">
+                კომპანიის ლოკაცია <span className="text-red-500">*</span>
+              </p>
+              <p className="text-xs text-slate-400">
+                სავალდებულოა — მოლარეები ვერ დააფიქსირებენ დასწრებას ამ ტერიტორიის გარეთ
+                გაფრთხილების გარეშე
+              </p>
+
+              <Button
+                type="button"
+                variant="secondary"
+                loading={locating}
+                onClick={useCurrentLocation}
+              >
+                📍 მიმდინარე ლოკაციის გამოყენება
+              </Button>
+
+              {hasLocation && (
+                <p className="text-xs text-emerald-600">
+                  ლოკაცია მიღებულია: {latitude}, {longitude}
+                </p>
+              )}
+              {locationError && (
+                <p className="text-xs text-red-600">{locationError}</p>
+              )}
+
+              <Input
+                label="დაშვებული რადიუსი (მეტრი)"
+                value={radiusMeters}
+                onChange={(e) => setRadiusMeters(e.target.value)}
+                placeholder="200"
+                required
+              />
+            </div>
 
             {error && (
               <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">

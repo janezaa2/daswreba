@@ -114,7 +114,10 @@ model AttendanceRecord {
   userAgent   String
   platform    String   @default("web")
   status      String   @default("present")
+  deviceId    String?
+  outOfRange  Boolean  @default(false)
   createdAt   DateTime @default(now())
 
   @@unique([cashierId, date])
+  @@index([deviceId, date])
 }

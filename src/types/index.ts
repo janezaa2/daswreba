@@ -37,6 +37,7 @@ export type AttendanceRecord = {
   accuracy: number | null;
   userAgent: string;
   status: string;
+  outOfRange: boolean;
   createdAt: string;
 };
 

@@ -14,7 +14,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { uniqueCode, cashRegisterId, latitude, longitude, accuracy, userAgent } = parsed.data;
+  const { uniqueCode, cashRegisterId, latitude, longitude, accuracy, userAgent, deviceId } =
+    parsed.data;
   const code = uniqueCode.trim().toUpperCase();
 
   const cashier = await prisma.cashier.findUnique({ where: { uniqueCode: code } });
@@ -48,8 +49,21 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const deviceUsedByOther = await prisma.attendanceRecord.findFirst({
+    where: { deviceId, date, cashierId: { not: cashier.id } },
+  });
+  if (deviceUsedByOther) {
+    return NextResponse.json(
+      {
+        message: "ეს მოწყობილობა უკვე გამოყენებულია სხვა მოლარის დასწრების დასაფიქსირებლად დღეს",
+      },
+      { status: 409 },
+    );
+  }
+
   const company = await prisma.company.findUnique({ where: { id: cashier.companyId } });
   let geofenceWarning: string | null = null;
+  let outOfRange = false;
   if (
     company?.geofenceEnabled &&
     company.allowedLatitude != null &&
@@ -63,6 +77,7 @@ export async function POST(request: NextRequest) {
       company.allowedLongitude,
     );
     if (distance > company.allowedRadiusMeters) {
+      outOfRange = true;
       geofenceWarning = `თქვენი ლოკაცია დაშორებულია დაშვებული ტერიტორიიდან დაახლოებით ${Math.round(distance)} მეტრით`;
     }
   }
@@ -82,6 +97,8 @@ export async function POST(request: NextRequest) {
         longitude,
         accuracy: accuracy ?? null,
         userAgent: userAgent || "",
+        deviceId,
+        outOfRange,
         status: "present",
       },
     });

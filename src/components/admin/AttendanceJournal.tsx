@@ -154,23 +154,33 @@ export function AttendanceJournal() {
             )}
             {!loading &&
               records.map((record) => (
-                <tr key={record.id}>
-                  <td className="px-4 py-3 whitespace-nowrap text-slate-700">
+                <tr key={record.id} className={record.outOfRange ? "bg-red-50" : undefined}>
+                  <td
+                    className={`px-4 py-3 whitespace-nowrap ${record.outOfRange ? "text-red-700" : "text-slate-700"}`}
+                  >
                     {toTbilisiDateString(new Date(record.date))}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-slate-700">
+                  <td
+                    className={`px-4 py-3 whitespace-nowrap ${record.outOfRange ? "text-red-700" : "text-slate-700"}`}
+                  >
                     {new Date(record.checkInTime).toLocaleTimeString("ka-GE", {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
                   </td>
-                  <td className="px-4 py-3 font-medium whitespace-nowrap text-slate-900">
+                  <td
+                    className={`px-4 py-3 font-medium whitespace-nowrap ${record.outOfRange ? "text-red-900" : "text-slate-900"}`}
+                  >
                     {record.cashierName}
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs whitespace-nowrap text-slate-500">
+                  <td
+                    className={`px-4 py-3 font-mono text-xs whitespace-nowrap ${record.outOfRange ? "text-red-600" : "text-slate-500"}`}
+                  >
                     {record.cashierCode}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-slate-700">
+                  <td
+                    className={`px-4 py-3 whitespace-nowrap ${record.outOfRange ? "text-red-700" : "text-slate-700"}`}
+                  >
                     {record.cashRegisterName}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
@@ -184,14 +194,21 @@ export function AttendanceJournal() {
                     </a>
                   </td>
                   <td
-                    className="max-w-[220px] truncate px-4 py-3 text-xs text-slate-400"
+                    className={`max-w-[220px] truncate px-4 py-3 text-xs ${record.outOfRange ? "text-red-400" : "text-slate-400"}`}
                     title={record.userAgent}
                   >
                     {record.userAgent}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        record.outOfRange
+                          ? "bg-red-100 text-red-700"
+                          : "bg-emerald-100 text-emerald-700"
+                      }`}
+                    >
                       {record.status === "present" ? "დამსწრე" : record.status}
+                      {record.outOfRange ? " (ლოკაციის გარეთ)" : ""}
                     </span>
                   </td>
                 </tr>

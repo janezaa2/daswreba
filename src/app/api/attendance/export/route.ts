@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
     "Google Maps Link": buildGoogleMapsLink(record.latitude, record.longitude),
     "Device Info": record.userAgent,
     Status: record.status.charAt(0).toUpperCase() + record.status.slice(1),
+    Location: record.outOfRange ? "Out of Range" : "Within Range",
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(rows, {
@@ -54,6 +55,7 @@ export async function GET(request: NextRequest) {
       "Google Maps Link",
       "Device Info",
       "Status",
+      "Location",
     ],
   });
   worksheet["!cols"] = [
@@ -67,6 +69,7 @@ export async function GET(request: NextRequest) {
     { wch: 45 },
     { wch: 40 },
     { wch: 12 },
+    { wch: 14 },
   ];
 
   const workbook = XLSX.utils.book_new();
