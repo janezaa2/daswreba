@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 
 const APK_DOWNLOAD_URL =
   process.env.NEXT_PUBLIC_ANDROID_APK_URL ||
-  "https://expo.dev/artifacts/eas/-f5AHyytVEGZDl-8KyOAi8K3heF5GGMciMzo9F0Xhuo.apk";
+  "https://expo.dev/artifacts/eas/c3x-1yeGlaieqCUTf0m_ZDST1nvDf-IDCQs_r-bbOUw.apk";
 
 export function DownloadAppButton() {
   const [open, setOpen] = useState(false);
