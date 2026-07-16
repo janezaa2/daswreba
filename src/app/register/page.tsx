@@ -13,6 +13,7 @@ type SavedLocation = { name: string; latitude: number; longitude: number; radius
 
 export default function RegisterPage() {
   const [companyName, setCompanyName] = useState("");
+  const [username, setUsername] = useState("");
   const [identificationCode, setIdentificationCode] = useState("");
   const [password, setPassword] = useState("");
   const [locations, setLocations] = useState<SavedLocation[]>([]);
@@ -60,7 +61,7 @@ export default function RegisterPage() {
       const response = await fetch("/api/company/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyName, identificationCode, password, locations }),
+        body: JSON.stringify({ companyName, username, identificationCode, password, locations }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -69,6 +70,7 @@ export default function RegisterPage() {
       }
       setSuccess(data.message);
       setCompanyName("");
+      setUsername("");
       setIdentificationCode("");
       setPassword("");
       setLocations([]);
@@ -104,18 +106,20 @@ export default function RegisterPage() {
               required
             />
             <Input
-              label="საიდენტიფიკაციო კოდი (9 ციფრი)"
+              label="მომხმარებლის სახელი (login username)"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+            <Input
+              label="საიდენტიფიკაციო კოდი (9 ციფრი, არასავალდებულო)"
               value={identificationCode}
               onChange={(e) => setIdentificationCode(e.target.value.replace(/\D/g, "").slice(0, 9))}
               placeholder="XXXXXXXXX"
               inputMode="numeric"
               pattern="\d{9}"
               maxLength={9}
-              required
             />
-            <p className="-mt-3 text-xs text-slate-400">
-              ეს კოდი გამოყენებული იქნება სისტემაში შესვლის მომხმარებლის სახელად
-            </p>
             <Input
               label="პაროლი"
               type="password"

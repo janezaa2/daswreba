@@ -184,7 +184,7 @@ export function CheckInFlow() {
                 autoFocus
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="MP-XXXXXX"
+                placeholder="XXXXXX"
                 className="rounded-lg border border-slate-300 px-4 py-3 text-center text-lg font-mono tracking-wider outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 required
               />

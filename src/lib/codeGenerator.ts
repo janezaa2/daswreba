@@ -1,7 +1,6 @@
 import { randomInt } from "crypto";
 import { prisma } from "@/lib/prisma";
 
-const CODE_PREFIX = "MP-";
 const CODE_DIGITS = 6;
 
 function generateCandidate(): string {
@@ -9,7 +8,7 @@ function generateCandidate(): string {
   for (let i = 0; i < CODE_DIGITS; i++) {
     digits += randomInt(0, 10).toString();
   }
-  return `${CODE_PREFIX}${digits}`;
+  return digits;
 }
 
 export async function generateUniqueCashierCode(): Promise<string> {

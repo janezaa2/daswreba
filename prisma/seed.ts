@@ -65,9 +65,9 @@ async function main() {
   console.log(`✔ სალაროები მზადაა (${registers.length})`);
 
   const cashiers = [
-    { firstName: "გიორგი", lastName: "მაისურაძე", uniqueCode: "MP-100001" },
-    { firstName: "ნინო", lastName: "კვარაცხელია", uniqueCode: "MP-100002" },
-    { firstName: "დავით", lastName: "ჯანელიძე", uniqueCode: "MP-100003" },
+    { firstName: "გიორგი", lastName: "მაისურაძე", uniqueCode: "100001" },
+    { firstName: "ნინო", lastName: "კვარაცხელია", uniqueCode: "100002" },
+    { firstName: "დავით", lastName: "ჯანელიძე", uniqueCode: "100003" },
   ];
 
   for (const cashier of cashiers) {

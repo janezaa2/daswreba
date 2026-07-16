@@ -73,7 +73,11 @@ export const identificationCodeSchema = z
 
 export const companyRegisterSchema = z.object({
   companyName: z.string().trim().min(1, "კომპანიის სახელი აუცილებელია"),
-  identificationCode: identificationCodeSchema,
+  username: z
+    .string()
+    .trim()
+    .min(3, "მომხმარებლის სახელი უნდა შეიცავდეს მინიმუმ 3 სიმბოლოს"),
+  identificationCode: identificationCodeSchema.optional().or(z.literal("")),
   password: z.string().min(6, "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს"),
   locations: z
     .array(companyLocationSchema)

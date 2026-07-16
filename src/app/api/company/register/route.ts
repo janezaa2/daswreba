@@ -13,16 +13,24 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { companyName, identificationCode, password, locations } = parsed.data;
+  const { companyName, username, identificationCode, password, locations } = parsed.data;
 
-  const existingUser = await prisma.adminUser.findUnique({
-    where: { username: identificationCode },
-  });
+  const existingUser = await prisma.adminUser.findUnique({ where: { username } });
   if (existingUser) {
     return NextResponse.json(
-      { message: "ამ საიდენტიფიკაციო კოდით კომპანია უკვე რეგისტრირებულია" },
+      { message: "მომხმარებლის სახელი დაკავებულია" },
       { status: 409 },
     );
+  }
+
+  if (identificationCode) {
+    const existingCode = await prisma.company.findUnique({ where: { identificationCode } });
+    if (existingCode) {
+      return NextResponse.json(
+        { message: "ამ საიდენტიფიკაციო კოდით კომპანია უკვე რეგისტრირებულია" },
+        { status: 409 },
+      );
+    }
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -30,7 +38,7 @@ export async function POST(request: NextRequest) {
   const company = await prisma.company.create({
     data: {
       name: companyName,
-      identificationCode,
+      identificationCode: identificationCode || null,
       status: "pending",
       geofenceEnabled: true,
       locations: {
@@ -38,7 +46,7 @@ export async function POST(request: NextRequest) {
       },
       adminUsers: {
         create: {
-          username: identificationCode,
+          username,
           passwordHash,
           role: "company_user",
         },
